@@ -2,4 +2,5 @@ node_modules/
 log/
 logs/
 .env
-.env.example
+.env.*
+!.env.example
