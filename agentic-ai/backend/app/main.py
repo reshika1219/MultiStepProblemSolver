@@ -23,11 +23,17 @@ app = FastAPI(title=settings.APP_NAME)
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"],  # restrict in prod
+    allow_origins=[o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$" if settings.ENV.lower() in ("dev", "development", "test") else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/healthz", include_in_schema=False)
+async def healthz():
+    await get_db().command("ping")
+    return {"ok": True}
 
 @app.on_event("startup")
 async def on_startup():

@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field, validator
 from typing import List, Optional, Literal
 
+from app.api.deps import get_current_user, require_chat_owner
 from app.db.mongo import get_db
 from app.repositories.vault_repo import (
     get_active_vault_version,
@@ -87,7 +88,13 @@ def _skills_already_recorded(chat_state: Optional[dict]) -> bool:
 # ---------- Routes ----------
 
 @router.post("/intake", response_model=IntakeResponse)
-async def intake(req: IntakeRequest):
+async def intake(req: IntakeRequest, user=Depends(get_current_user)):
+    db = get_db()
+    await require_chat_owner(db, user, req.chat_id)
+    return await run_intake(req)
+
+async def run_intake(req: IntakeRequest) -> IntakeResponse:
+    """Core intake logic. Callers must have verified chat ownership already."""
     db = get_db()
 
     # Load active vault
@@ -182,8 +189,9 @@ async def intake(req: IntakeRequest):
     return IntakeResponse(action="none")
 
 @router.post("/submit/employment", response_model=SubmitEmploymentResponse)
-async def submit_employment(req: SubmitEmploymentRequest):
+async def submit_employment(req: SubmitEmploymentRequest, user=Depends(get_current_user)):
     db = get_db()
+    await require_chat_owner(db, user, req.chat_id)
     await _ensure_version_current(db, req.vault_version)
 
     print(" ------| Submitting EC:", req.employment_category_id, "for chat:", req.chat_id)
@@ -201,8 +209,7 @@ async def submit_employment(req: SubmitEmploymentRequest):
     await upsert_employment_category(db, req.chat_id, req.employment_category_id, req.vault_version)
     print(" ------| Employment category recorded.")
 
-    if req.employment_category_id == "ec_ds":
-        emp_cat = "Data Scientist"
+    emp_cat = ec.get("name") or req.employment_category_id
 
     text = f"Awesome your employment category is set to **{emp_cat}**, next Which skills do you want to build next?"
 
@@ -210,8 +217,9 @@ async def submit_employment(req: SubmitEmploymentRequest):
     return SubmitEmploymentResponse(action=text, ec_id=req.employment_category_id)
 
 @router.post("/submit/skills", response_model=SubmitSkillsResponse)
-async def submit_skills(req: SubmitSkillsRequest):
+async def submit_skills(req: SubmitSkillsRequest, user=Depends(get_current_user)):
     db = get_db()
+    await require_chat_owner(db, user, req.chat_id)
     await _ensure_version_current(db, req.vault_version)
 
     print(" ------| Submitting skills for EC:", req.employment_category_id, "for chat:", req.chat_id, "let_system_decide:", req.let_system_decide, "skills_selected:", req.skills_selected)

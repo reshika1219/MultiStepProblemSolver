@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, require_chat_owner
 from app.db.mongo import get_db
 from app.services.insight_engine import stage01_auto_infer
 from app.services.insight_survey import build_surveys, submit_survey
@@ -36,7 +36,7 @@ async def insights_auto_infer(
     Stage-01: run auto-inference → thresholds → batch expansion.
     Response includes pendingByBatch, insightStats, touchedBatchIds.
     """
-    print("---------------------Auto-infer request:", req)
+    await require_chat_owner(db, user, req.chatId)
     result = await stage01_auto_infer(db, chatId=req.chatId, user_text=req.text)
     return result
 
@@ -50,6 +50,7 @@ async def insights_pending(
     """
     Stage-02: build per-batch micro-surveys for this chat (if any pending).
     """
+    await require_chat_owner(db, user, chat_id)
     payloads = await build_surveys(db, chatId=chat_id)
     return payloads
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from app.db.mongo import get_db
-from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token
+from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
 from app.repositories.user_repo import find_user_by_email, insert_user, touch_login
 from app.repositories.token_repo import insert_refresh_token, is_valid_refresh, revoke_token
 from jose import JWTError, jwt
@@ -10,14 +10,17 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 class SignReq(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(min_length=1, max_length=256)
+
+class SignupReq(SignReq):
+    password: str = Field(min_length=8, max_length=256)
 
 class TokenPair(BaseModel):
     access_token: str
     refresh_token: str
 
 @router.post("/signup", response_model=TokenPair)
-async def signup(req: SignReq, request: Request):
+async def signup(req: SignupReq, request: Request):
     db = get_db()
     if await find_user_by_email(db, req.email):
         raise HTTPException(400, "Email already exists")
@@ -51,10 +54,12 @@ async def refresh(req: RefreshReq, request: Request):
     rec = await is_valid_refresh(db, req.refresh_token)
     if not rec:
         raise HTTPException(401, "Invalid refresh")
-    # check JWT validity
+    # check JWT signature, expiry and token type
     try:
-        payload = jwt.get_unverified_claims(req.refresh_token)
+        payload = decode_token(req.refresh_token)
     except JWTError:
+        raise HTTPException(401, "Invalid refresh")
+    if payload.get("type") != "refresh":
         raise HTTPException(401, "Invalid refresh")
     uid = str(rec["user_id"])
     at = create_access_token(uid)

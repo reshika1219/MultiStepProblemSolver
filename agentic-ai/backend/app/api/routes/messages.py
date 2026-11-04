@@ -14,7 +14,7 @@ from app.repositories.chats_repo import verify_chat_owner, touch_chat_activity
 from app.repositories.chat_repo import get_chat_state
 from app.repositories.messages_repo import list_messages as repo_list, insert_message
 from app.repositories.vault_repo import get_active_vault_version
-from app.api.routes.uia import intake as uia_intake_route, IntakeRequest
+from app.api.routes.uia import run_intake as uia_intake_route, IntakeRequest
 from app.services.insight_engine import stage01_auto_infer
 from app.services.insight_survey import build_surveys
 from app.components.component10 import component10

@@ -14,6 +14,8 @@ class Settings(BaseSettings):
 
     # Auth / JWT
     JWT_SECRET: str = "change-me"
+    # Extra browser origins allowed by CORS (comma-separated). localhost on any port is always allowed in dev.
+    CORS_ORIGINS: str = ""
     JWT_ALG: str = "HS256"
     ACCESS_TOKEN_MINUTES: int = 30
     REFRESH_TOKEN_DAYS: int = 30
@@ -27,6 +29,11 @@ class Settings(BaseSettings):
     INSIGHTS_TOP_P: float = 0.3
 
 settings = Settings()
+
+_WEAK_SECRETS = {"change-me", "change_me", "changeme", ""}
+if settings.JWT_SECRET in _WEAK_SECRETS or len(settings.JWT_SECRET) < 16:
+    if settings.ENV.lower() not in ("dev", "development", "test"):
+        raise RuntimeError("JWT_SECRET is missing or too weak; set a random value of 16+ characters.")
 
 # convenience accessor for C07 model choice (fallback to main model)
 def get_insights_model() -> str:
