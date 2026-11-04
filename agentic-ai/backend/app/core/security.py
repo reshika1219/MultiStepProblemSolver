@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timedelta, timezone
 from jose import jwt
 from passlib.context import CryptContext
@@ -14,13 +15,13 @@ def verify_password(plain: str, hashed: str) -> bool:
 def create_access_token(sub: str) -> str:
     now = datetime.now(timezone.utc)
     exp = now + timedelta(minutes=settings.ACCESS_TOKEN_MINUTES)
-    payload = {"sub": sub, "iat": int(now.timestamp()), "exp": int(exp.timestamp()), "type": "access"}
+    payload = {"sub": sub, "iat": int(now.timestamp()), "exp": int(exp.timestamp()), "type": "access", "jti": uuid.uuid4().hex}
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALG)
 
 def create_refresh_token(sub: str) -> tuple[str, datetime]:
     now = datetime.now(timezone.utc)
     exp = now + timedelta(days=settings.REFRESH_TOKEN_DAYS)
-    payload = {"sub": sub, "iat": int(now.timestamp()), "exp": int(exp.timestamp()), "type": "refresh"}
+    payload = {"sub": sub, "iat": int(now.timestamp()), "exp": int(exp.timestamp()), "type": "refresh", "jti": uuid.uuid4().hex}
     token = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALG)
     return token, exp
 
