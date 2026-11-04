@@ -97,7 +97,6 @@ const MessageList = ({ messages = [], chatId, onSubmitEmployment, onSubmitSkills
 
         const clsUser = `${baseFit} ${clampContent} mt-2 bg-gray-100 text-black border rounded-2xl px-3 py-2`;
         const clsAsst = `${baseFit} ${clampContent} bg-white-100 rounded-2xl px-3 py-2`;
-        const clsEnc  = `${baseFit} ${clampContent} border rounded-2xl px-3 py-2 border-amber-300/60 bg-amber-50 dark:bg-amber-900/20 text-amber-900 dark:text-amber-100`;
 
         // EC/Skills survey bubbles shrink to content; Insight surveys remain full-width
         const clsSurveyFit = `${baseFit} ${clampSurvey} mt-4 mb-4 bg-gray-100 dark:bg-[#111] border rounded-2xl px-3 py-2`;

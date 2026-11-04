@@ -16,6 +16,8 @@ export default function InsightQuestionCard({ question, value, onChange, disable
 
   useEffect(() => {
     setLocal(value || {});
+    // Depend on the value's fields, not its identity, so a parent re-render doesn't reset local edits.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value?.answerId, value?.answerIds, value?.noteOther]);
 
   const toggleMulti = (id) => {
@@ -28,12 +30,6 @@ export default function InsightQuestionCard({ question, value, onChange, disable
 
   const chooseSingle = (id) => {
     const next = { answerId: id };
-    setLocal(next);
-    onChange && onChange(next);
-  };
-
-  const changeOther = (e) => {
-    const next = { ...local, noteOther: e.target.value };
     setLocal(next);
     onChange && onChange(next);
   };

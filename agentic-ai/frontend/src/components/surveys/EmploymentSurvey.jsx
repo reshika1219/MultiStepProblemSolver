@@ -7,7 +7,7 @@ import React, { useState } from "react";
  * - onSubmit: async ({ employment_category_id, vault_version }) => void
  * - disabled?: boolean
  */
-export default function EmploymentSurvey({ survey, chatId, onSubmit, msgId, disabled }) {
+export default function EmploymentSurvey({ survey, onSubmit, disabled }) {
   const [selected, setSelected] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const canSubmit = !!selected && !submitting && !disabled;

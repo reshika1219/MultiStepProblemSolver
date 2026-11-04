@@ -1,7 +1,7 @@
 import React from "react";
 import { Menu } from "lucide-react";
 
-const Header = ({ isCollapsed, setIsCollapsed }) => {
+const Header = ({ setIsCollapsed }) => {
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-200">
       <div className="px-4 py-4">

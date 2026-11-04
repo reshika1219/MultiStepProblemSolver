@@ -35,18 +35,6 @@ const Welcome = ({ chatId }) => {
 
   const append = (...rows) => setMessages((prev) => [...prev, ...rows]);
 
-  // helper: update a specific temp progress bubble by _tempId
-  const updateProgress = (tempId, updater) => {
-    setMessages((prev) =>
-      prev.map((m) => (m._tempId === tempId ? updater(m) : m))
-    );
-  };
-
-  // helper: remove temp bubble
-  const removeByTempId = (tempId) => {
-    setMessages((prev) => prev.filter((m) => m._tempId !== tempId));
-  };
-
 const safeUUID = () => {
   try { return crypto?.randomUUID?.() || null; } catch { return null; }
 };
@@ -185,7 +173,7 @@ const handleSend = async ({ text }) => {
   // === Survey submit handlers (Phase C) ===
   const handleSubmitEmployment = async ({ employment_category_id, vault_version }) => {
     try {
-      const empSubmit = await uiaApi.submitEmployment({
+      await uiaApi.submitEmployment({
         chat_id: chatId, // important for per-chat UIA state
         employment_category_id,
         vault_version,

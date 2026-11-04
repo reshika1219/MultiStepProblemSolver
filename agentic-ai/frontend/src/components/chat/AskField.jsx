@@ -6,7 +6,7 @@ const AskField = ({ onSend }) => {
   const [value, setValue] = useState("");
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [uploading, setUploading] = useState(false);
+  const [uploading] = useState(false);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
 

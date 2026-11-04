@@ -24,7 +24,7 @@ const SideBar = ({ isCollapsed, setIsCollapsed }) => {
   const [items, setItems] = useState([]);
   const [menuOpenId, setMenuOpenId] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("theme") === "dark");
+  const [darkMode] = useState(() => localStorage.getItem("theme") === "dark");
 
   // --- NEW: centralized refresher ---
   const refresh = useCallback(() => {
@@ -93,17 +93,6 @@ const SideBar = ({ isCollapsed, setIsCollapsed }) => {
     } catch (e) {
       console.error(e);
     }
-  };
-
-  const toggleSettings = () => setSettingsOpen((v) => !v);
-
-  const toggleDark = () => {
-    setDarkMode((d) => {
-      const next = !d;
-      localStorage.setItem("theme", next ? "dark" : "light");
-      document.documentElement.classList.toggle("dark", next);
-      return next;
-    });
   };
 
   const logout = async () => {

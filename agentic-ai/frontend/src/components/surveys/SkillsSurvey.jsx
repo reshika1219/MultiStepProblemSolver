@@ -6,7 +6,7 @@ import React, { useMemo, useState } from "react";
  * - onSubmit: async ({ let_system_decide:boolean, skills_selected?:string[], employment_category_id, vault_version }) => void
  * - disabled?: boolean
  */
-export default function SkillsSurvey({ survey, msgId, onSubmit, disabled }) {
+export default function SkillsSurvey({ survey, onSubmit, disabled }) {
   const max = survey.max || 4;
   const [picks, setPicks] = useState([]);
   const [systemDecide, setSystemDecide] = useState(false);

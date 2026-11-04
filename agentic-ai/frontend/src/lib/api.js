@@ -41,7 +41,7 @@ api.interceptors.response.use(
         original.headers.Authorization = `Bearer ${data.access_token}`;
         api.defaults.headers.common.Authorization = `Bearer ${data.access_token}`;
         return api.request(original);
-      } catch (e) {
+      } catch {
         clearTokens();
         throw err;
       }
