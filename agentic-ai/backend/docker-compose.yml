@@ -1,8 +1,10 @@
-version: "3.9"
 services:
   api:
     build: .
     env_file: .env
+    environment:
+      # Inside compose, Mongo is reachable by service name, not localhost.
+      MONGO_URI: mongodb://mongodb:27017
     ports:
       - "8000:8000"
     depends_on:
@@ -11,7 +13,7 @@ services:
     image: mongo:7
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
     volumes:
       - mongo_data:/data/db
 volumes:

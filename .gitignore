@@ -4,3 +4,9 @@ logs/
 .env
 .env.*
 !.env.example
+.data/
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+dist/

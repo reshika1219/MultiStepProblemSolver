@@ -178,8 +178,8 @@ agentic-ai/
 ### 1) Backend
 
 ```bash
-cd backend
-python -m venv .venv && source .venv/bin/activate   # (Windows: .venv\Scripts\activate)
+cd agentic-ai/backend
+python3.11 -m venv .venv && source .venv/bin/activate   # (Windows: .venv\Scripts\activate)
 pip install -r requirements.txt
 cp .env.example .env   # fill values (MONGO_URI, DB_NAME, JWT_SECRET, OPENAI_API_KEY, etc.)
 
@@ -200,7 +200,7 @@ python -m scripts.seed_insight_vault
 ### 2) Frontend
 
 ```bash
-cd frontend
+cd agentic-ai/frontend
 npm install
 
 # Configure API base URL for the browser
@@ -222,7 +222,8 @@ npm run dev
 | `ENV`                          | No       | `dev`                       | Environment name                                                         |
 | `MONGO_URI`                    | Yes      | `mongodb://localhost:27017` | Mongo connection string                                                  |
 | `MONGO_DB`                     | Yes      | `agentic_ai`                | Database name                                                            |
-| `JWT_SECRET`                   | Yes      | `change_me`                 | HMAC secret for access tokens                                            |
+| `JWT_SECRET`                   | Yes      | (random, 16+ chars)         | HMAC secret for tokens. Server refuses to start with a weak value unless `ENV=dev` |
+| `CORS_ORIGINS`                 | No       | `https://app.example.com`   | Extra allowed browser origins, comma-separated. `localhost` is always allowed when `ENV=dev` |
 | `ACCESS_TOKEN_MINUTES`         | Yes      | `30`                        | Access token lifetime                                                    |
 | `REFRESH_TOKEN_DAYS`           | Yes      | `7`                         | Refresh token lifetime                                                   |
 | `OPENAI_API_KEY`               | Yes      | `sk-***`                    | OpenAI key for LLM features                                              |
@@ -273,14 +274,25 @@ npm run dev
 
 ## Testing
 
-* **Backend:** Include tests for:
+**Backend** (needs a reachable MongoDB; tests use a throwaway `agentic_ai_test` database and skip if Mongo is down):
 
-  * Auth flows (signup/signin/refresh/logout)
-  * UIA flows (employment category & skills validation)
-  * Insight auto-infer → survey build → submission stats
-  * RAG planner + grounded answers (source presence)
-  * Guardrails (Decision Gate) edge cases
-* **Frontend:** unit tests for survey components and markdown renderer; E2E for auth + chat + progress stream
+```bash
+cd agentic-ai/backend
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+Currently covered: auth (password rules, refresh rotation/revocation, token-type checks), per-user chat isolation across every chat-scoped route, malformed chat IDs, and UIA employment submission.
+
+Not yet covered: insight auto-infer → survey → submission, RAG planner/grounding, guardrail edge cases.
+
+**Frontend:**
+
+```bash
+cd agentic-ai/frontend
+npm run lint
+npm run build
+```
 
 ---
 
